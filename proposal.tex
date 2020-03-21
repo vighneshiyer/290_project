@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{graphicx}
+% formatting
+\usepackage{verbatim}
+\usepackage{moreverb}
+\usepackage{minted}
+\usepackage{parskip}
+\usepackage{amsmath}
+\usepackage[listings]{tcolorbox}
+\usepackage{enumerate}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usetikzlibrary{arrows,automata, positioning}
+\let\verbatiminput=\verbatimtabinput
+\def\verbatimtabsize{4\relax}
+
+\tcbset{
+texexp/.style={colframe=black, colback=lightgray!15,
+         coltitle=white,
+         fonttitle=\small\sffamily\bfseries, fontupper=\small, fontlower=\small},
+     example/.style 2 args={texexp,
+title={Question \thetcbcounter: #1},label={#2}},
+}
+
+\newtcolorbox{texexp}[1]{texexp}
+\newtcolorbox[auto counter]{texexptitled}[3][]{%
+example={#2}{#3},#1}
+
+\setlength{\topmargin}{-0.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+
+% Useful macros
+
+\newcommand{\note}[1]{{\bf [ NOTE: #1 ]}}
+\newcommand{\fixme}[1]{{\bf [ FIXME: #1 ]}}
+\newcommand{\wunits}[2]{\mbox{#1\,#2}}
+\newcommand{\um}{\mbox{$\mu$m}}
+\newcommand{\xum}[1]{\wunits{#1}{\um}}
+\newcommand{\by}[2]{\mbox{#1$\times$#2}}
+\newcommand{\byby}[3]{\mbox{#1$\times$#2$\times$#3}}
+
+
+\newenvironment{tightlist}
+{\begin{itemize}
+ \setlength{\parsep}{0pt}
+ \setlength{\itemsep}{-2pt}}
+{\end{itemize}}
+
+\newenvironment{titledtightlist}[1]
+{\noindent
+ ~~\textbf{#1}
+ \begin{itemize}
+ \setlength{\parsep}{0pt}
+ \setlength{\itemsep}{-2pt}}
+{\end{itemize}}
+
+% Change spacing before and after section headers
+
+\makeatletter
+\renewcommand{\section}
+{\@startsection {section}{1}{0pt}
+ {-2ex}
+ {1ex}
+ {\bfseries\Large}}
+\makeatother
+
+\makeatletter
+\renewcommand{\subsection}
+{\@startsection {subsection}{1}{0pt}
+ {-1ex}
+ {0.5ex}
+ {\bfseries\normalsize}}
+\makeatother
+
+% Reduce likelihood of a single line at the top/bottom of page
+\clubpenalty=2000
+\widowpenalty=2000
+
+% Other commands and parameters
+\pagestyle{myheadings}
+\setlength{\parindent}{0in}
+\setlength{\parskip}{10pt}
+
+% Commands for register format figures.
+\newcommand{\instbit}[1]{\mbox{\scriptsize #1}}
+\newcommand{\instbitrange}[2]{\instbit{#1} \hfill \instbit{#2}}
+
+% Break lines on texttt text on underscores
+% See: https://tex.stackexchange.com/questions/315369/how-to-deal-with-bad-line-wrapping-of-texttt
+\newcommand*\ttvar[1]{\texttt{\expandafter\dottvar\detokenize{#1}\relax}}
+\newcommand*\dottvar[1]{\ifx\relax#1\else
+  \expandafter\ifx\string_#1\string_\allowbreak\else#1\fi
+  \expandafter\dottvar\fi}
+
+\graphicspath{{./figs/}}
+\newcommand{\itwos}{I\textsuperscript{2}S}
+
+\begin{document}
+
+\def\PYZsq{\textquotesingle}
+\title{\vspace{-0.4in}\Large \bf EE290C Project Proposal: Performance and Energy Characterization of Gemmini, NVDLA, and BOOM Using State-Sampling from Firesim FPGA Simulation\vspace{-0.1in}}
+\author{Vighnesh Iyer, Billy Chau}
+\date{}
+\maketitle
+
+\newcommand{\headertext}{EE290C Project Proposal}
+\markboth{\headertext}{\headertext}
+\thispagestyle{empty}
+
+\section{Background and Motivation}
+The architecture and VLSI literature has produced a litany of dedicated ML accelerators over the last 3 years.
+Most of these accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or many other techniques to achieve a claimed perf/watt advantage over prior work.
+
+However, architecture papers typically measure the energy consumption of the proposed accelerator against a baseline using a (Python/C++) model of their accelerator, and the energy numbers may suffer from poor accuracy.
+Some papers use HLS to generate RTL implementations of different architectures but the energy calculation from a synthesized netlist and RTL simulation is limited by the speed of simulation, and thus only small networks can be evaluated at the RTL-power-estimation-level.
+
+On the other hand, chip/VLSI papers measure the energy consumption of their accelerator empirically using the taped out chip, but do not have a reference accelerator implementation taped-out to compare against.
+Furthermore, once a chip is taped out, the power consumption cannot be measured for individual parts of the accelerator (at module-granularity) and cycle-by-cycle energy numbers cannot be extracted.
+
+\section{Prior Work}
+
+\section{Proposed Extension Over Prior Work}
+
+\section{Project Infrastructure}
+
+\section{Project Timeline}
+
+\begin{enumerate}
+  \item \textbf{Checkpoint 1 (4/10)}:
+  \item \textbf{Checkpoint 2 (4/24)}:
+  \item \textbf{Final Report (5/8)}:
+\end{enumerate}
+
+\end{document}
