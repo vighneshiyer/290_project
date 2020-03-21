@@ -128,7 +128,25 @@ Furthermore, once a chip is taped out, the power consumption cannot be measured 
 
 \section{Prior Work}
 
-Strober\autocite{strober}
+Strober\autocite{strober} is a framework which can generate fast and cycle-accurate sample-based energy simulator using Chisel for any arbitrary RTL running on FPGA. It has achieved less than
+5 percents error with 99.9 percents confidence against commercial CAD tools with more
+than two orders of magnitude speedup over existing microarchitectural simulators and
+four orders of magnitude speedup over commercial Verilog simulators.
+
+State Snapshotting using Scan Chain - As detailed information of simulation is required
+for an accurate power model, a basic scan chain is embedded into the design to capture
+a replayable RTL snapshot with both register and SRAM values. Using the hardware
+construction language Chisel, all custom transforms and FAME1 transform can be easily
+mapped and wrapped around the RTL design.
+
+Sample-based Energy Simulation - Based on the central limit theorem of statistics,
+a representative estimator of the power model can be generated given random sampling
+and enough snapshot samples. However, knowing the length of the program's execution
+is impossible, so the reservoir sampling technique is used to address this problem.
+
+Fine-grained level Simulation and Checking - Independent replayable snapshots are replayed in parallel in
+industrial gate-level simulators such as VCS for accurate power analysis. To ensure the correctness of the execution, the output values
+of the design are compared with the output traces.
 
 Simmani\autocite{simmani}
 
