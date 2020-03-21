@@ -14,6 +14,8 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{booktabs}
+\usepackage[backend=biber]{biblatex}
+\addbibresource{references.bib}
 \usetikzlibrary{arrows,automata, positioning}
 \let\verbatiminput=\verbatimtabinput
 \def\verbatimtabsize{4\relax}
@@ -126,6 +128,12 @@ Furthermore, once a chip is taped out, the power consumption cannot be measured 
 
 \section{Prior Work}
 
+Strober\autocite{strober}
+
+Simmani\autocite{simmani}
+
+DESSERT\autocite{dessert}
+
 \section{Proposed Extension Over Prior Work}
 
 \section{Project Infrastructure}
@@ -137,5 +145,7 @@ Furthermore, once a chip is taped out, the power consumption cannot be measured 
   \item \textbf{Checkpoint 2 (4/24)}:
   \item \textbf{Final Report (5/8)}:
 \end{enumerate}
+
+\printbibliography
 
 \end{document}

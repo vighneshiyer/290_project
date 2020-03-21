@@ -23,7 +23,7 @@ srcdir  = .
 main = proposal
 srcs = $(wildcard *.tex)
 figs = $(wildcard figs/*)
-bibs =
+bibs = references.bib
 
 #=======================================================================
 # You shouldn't need to change anything below this
@@ -41,7 +41,7 @@ pdf : $(output_pdf)
 $(output_pdf) : $(srcs) $(figs) $(bibs)
 	texfot pdflatex -shell-escape $(main)
 ifneq ($(strip $(bibs)),)
-	texfot bibtex $(main)
+	texfot biber $(main)
 	texfot pdflatex -shell-escape $(main)
 endif
 	texfot pdflatex -shell-escape $(main)

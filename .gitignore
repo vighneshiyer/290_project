@@ -2,3 +2,7 @@ _minted*
 *.out
 *.log
 *.aux
+*.bbl
+*.bcf
+*.blg
+*.run.xml
