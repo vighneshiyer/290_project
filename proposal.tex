@@ -14,7 +14,7 @@
 \usepackage{amssymb}
 \usepackage{tikz}
 \usepackage{booktabs}
-\usepackage[backend=biber]{biblatex}
+\usepackage[backend=biber, bibencoding=utf8]{biblatex}
 \addbibresource{references.bib}
 \usetikzlibrary{arrows,automata, positioning}
 \let\verbatiminput=\verbatimtabinput
@@ -107,7 +107,7 @@ example={#2}{#3},#1}
 \begin{document}
 
 \def\PYZsq{\textquotesingle}
-\title{\vspace{-0.4in}\Large \bf EE290C Project Proposal: Performance and Energy Characterization of Gemmini, NVDLA, and BOOM Using State-Sampling from Firesim FPGA Simulation\vspace{-0.1in}}
+\title{\vspace{-0.4in}\Large \bf EE290C Project Proposal: Performance and Energy Characterization of Gemmini, BOOM, and NVDLA Using State-Sampling from Firesim FPGA Simulation\vspace{-0.1in}}
 \author{Vighnesh Iyer, Billy Chau}
 \date{}
 \maketitle
@@ -157,17 +157,53 @@ Error Capturing using Scan Chain - Following the technique in the Strober framew
 Software-based Golden Model Checking - When the logs are generated from FPGA, they are sent to the
 buffers in the software simulation driver through DMA. They are then compared with a software-based golden model such as Spike for exhaustive error checking.
 
-\section{Proposed Extension Over Prior Work}
+\section{Proposal}
+We propose a framework that enables:
+\begin{itemize}
+  \item RTL-fidelity simulation of ML accelerators over full DNN inference passes
+
+    We plan to re-use the Firesim infrastructure that automatically transforms arbitrary RTL to a deterministic, cycle-accurate model that executes on an FPGA.
+
+  \item Gate-level fidelity energy modeling (with module-level granularity)
+
+    We plan to modify and add passes to Golden Gate that add a stitched scan chain and SRAM hijack ports that allows the host to inject and pull all $\mu$Arch state to and from the DUT.
+    This technique is distinct from DESSERT and STROBER since those works use a shadow scan chain that cannot inject state into the DUT, and may be more resource intensive.
+
+    This allows us to advance simulation time, pause at random intervals, and dump the DUT state to the host, similar to STROBER.
+    The randomly sampled RTL-level activity traces are formally mapped into gate-level traces and fed into Voltus with a gate-level synthesized netlist for cycle-by-cycle energy numbers.
+
+  \item Performance instrumentation and bottleneck analysis (PE utilization, memory traffic analysis)
+
+    We plan to use the auto-instrumentation (AutoCounter) feature in FirePerf\autocite{fireperf} to capture design-specific performance counters to evaluate bottlenecks in DNN inference.
+    We also plan to instrument the off-chip memory interface to record the DRAM address and transfer size access patterns.
+
+  \item Energy estimation of DRAM accesses
+
+    The memory access trace can be replayed in DRAMSim2\autocite{dramsim2} to extract average power numbers across time.
+    DRAM access energy is often neglected in RTL-level power analyses and isn't done in the STROBER flow.
+
+  \item Exploration of the impact different dataflows and tiling patterns on energy and performance
+
+    Finally, once the framework described has been implemented, it can be used to guide software optimizations.
+\end{itemize}
+
+We plan to use this framework to evaluate Gemmini\autocite{gemmini} and BOOM, and if time permits, NVDLA on Firesim\autocite{nvdlafiresim}.
 
 \section{Project Infrastructure}
+For the initial phase of the project, we don't require any special infrastructure apart from our laptops and the BWRC servers for Genus/Jasper/Voltus (we hope VPN works).
+Once software simulation is successful, we will use some AWS F1 instances.
 
 \section{Project Timeline}
 
 \begin{enumerate}
-  \item \textbf{Checkpoint 1 (4/10)}:
-  \item \textbf{Checkpoint 2 (4/24)}:
-  \item \textbf{Final Report (5/8)}:
+  \item \textbf{Checkpoint 1 (4/10)}: RTL simulation of a simple circuit (Risc/GCD) after default Firesim transformation, ASAP7 Genus synthesis of the circuit and SRAM macros, formal mapping of RTL VCD to gate-level VCD, scan-chain stitching and SRAM hijack FIRRTL pass working in RTL simulation
+  \item \textbf{Checkpoint 2 (4/24)}: Sample circuit simulating on F1 FPGA, $\mu$Arch state dumping, initial energy estimation evaluation
+  \item \textbf{Final Report (5/8)}: Rocket with Gemmini simulating on F1 FPGA, DRAM interface and Gemmini-specific performance instrumentation, Gemmini energy estimation for pre-written ResNet50 and Mobilenet implementations, DRAMSim2 energy estimation
 \end{enumerate}
+
+The timeline is quite aggressive and there may be points where we find ourselves stuck.
+It is likely that the custom FIRRTL passes introduce difficult to find bugs and may delay this timeline.
+It is not clear how to perform formal mapping of RTL VCDs to gate VCDs, but there's probably a Cadence RAK for it.
 
 \printbibliography
 
