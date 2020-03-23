@@ -133,6 +133,8 @@ Strober\autocite{strober} is a framework which can generate fast and cycle-accur
 than two orders of magnitude speedup over existing microarchitectural simulators and
 four orders of magnitude speedup over commercial Verilog simulators.
 
+\textbf{Highlights}
+
 State Snapshotting using Scan Chain - As detailed information of simulation is required
 for an accurate power model, a basic scan chain is embedded into the design to capture
 a replayable RTL snapshot with both register and SRAM values. Using the hardware
@@ -148,9 +150,21 @@ Fine-grained level Simulation and Checking - Independent replayable snapshots ar
 commercial gate-level simulators such as VCS for accurate power analysis. To ensure the correctness of the execution, the output values
 of the design are compared with the output traces.
 
-Simmani\autocite{simmani}
+Simmani\autocite{simmani} is an FPGA-accelerated framework which automatically selects signals most correlated with power dissipation and trains power models in terms of the selected signals for any RTL design. It has achieved accurate power models with acceptable errors on real world machine learning application such as SqueezeNet running with Rocket Core and Hwacha Vector Accelerator.
+
+\textbf{Highlights}
+
+Activity Counter Insertion and FPGA accelerated simulation - Utilizing the Strober framework, any RTL designs are automatically transformed for FPGA-accelerated RTL simulation. The framework is also used to obtain runtime power traces from FPGAs by inserting activity counters.
+
+Toggle Density Matrix with Principal Components Projection - In order to train an accurate power model, toggle pattern matrix is used to represent signals and their toggle frequencies. The intuition behind is that signals showing similar toggle patterns have similar effect on dynamic power dissipation and can be factored to share the same coefficient in the power model, thus minimizing modeling error. However, it suffers from the curse of dimensionality like other machine learning algorithms; therefore, SVD-based dimensionality reduction algorithm is used to extract the top k dimensions.
+
+Automatic Signal Selection - Given N, the number of signals selected from Bayesian Information Criterion, k-means++ algorithm is run to cluster the signals into groups i.e. signals with similar toggle pattern are grouped together. Then, the signals that are the closest to the center of each cluster are selected, which will be the regression variables in power model training.
+
+Power Model Regression - Using Elastic Net for variable regularization and selection with k-fold cross-validated hyperparameters, a regression model is trained using the toggle density matrix and the groud truth power traces obtained from commercial CAD tools calculated from RTL VCD dumps.
 
 DESSERT\autocite{dessert} is an FPGA-accelerated framework for effective simulation-based RTL verification and debugging. It has achieved almost no performance overhead with hardware-based assertion checking and insignificant performance overhead for software-based exhaustive checking in comparison to commercial CAD tools.
+
+\textbf{Highlights}
 
 Error Capturing using Scan Chain - Following the technique in the Strober framework, scan chain based snapshotting is used for error capturing in DESSERT. There are two constructs supporting assertion and logs in FIRRTL: stop and printf, and they are mapped automatically from the source code by DESSERT. In order to detect and replay errors efficiently, two identical and deterministic simulators are run in parallel. The leading master instance is to detect the target RTL bugs while the lagging instance is to checkpoint the target RTL state.
 
