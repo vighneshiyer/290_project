@@ -1,0 +1,264 @@
+%%
+%% This is file `sample-sigconf.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% samples.dtx  (with options: `sigconf')
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For the copyright see the source file.
+%% 
+%% Any modified versions of this file must be renamed
+%% with new filenames distinct from sample-sigconf.tex.
+%% 
+%% For distribution of the original source see the terms
+%% for copying and modification in the file samples.dtx.
+%% 
+%% This generated file may be distributed as long as the
+%% original source files, as listed above, are part of the
+%% same distribution. (The sources need not necessarily be
+%% in the same archive or directory.)
+%%
+\PassOptionsToPackage{dvipsnames}{xcolor}
+%% The first command in your LaTeX source must be the \documentclass command.
+\documentclass[sigconf]{acmart}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+%\usepackage[dvipsnames]{xcolor}
+\usepackage{minted}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{tikz-timing}
+\usepackage{microtype}
+\usepackage{float}
+\usetikztiminglibrary{arrows}
+\usetikztiminglibrary[rising arrows]{clockarrows}
+\usetikztiminglibrary{nicetabs}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+%% Rights management information.  This information is sent to you
+%% when you complete the rights form.  These commands have SAMPLE
+%% values in them; it is your responsibility as an author to replace
+%% the commands and values with those provided to you when you
+%% complete the rights form.
+\setcopyright{acmcopyright}
+\copyrightyear{2019}
+\acmYear{2019}
+\acmConference[MEMOCODE '19]{17th ACM-IEEE International Conference on Formal Methods and Models for System Design}{October 9--11, 2019}{La Jolla, CA, USA}
+\acmBooktitle{17th ACM-IEEE International Conference on Formal Methods and Models for System Design (MEMOCODE '19), October 9--11, 2019, La Jolla, CA, USA}
+\acmPrice{15.00}
+\acmDOI{10.1145/3359986.3361202}
+\acmISBN{978-1-4503-6997-8/19/10}
+
+%%
+%% Submission ID.
+%% Use this when submitting an article to a sponsored event. You'll
+%% receive a unique submission ID from the organizers
+%% of the event, and this ID should be used as the parameter to this command.
+%%\acmSubmissionID{123-A56-BU3}
+
+%%
+%% The majority of ACM publications use numbered citations and
+%% references.  The command \citestyle{authoryear} switches to the
+%% "author year" style.
+%%
+%% If you are preparing content for an event
+%% sponsored by ACM SIGGRAPH, you must use the "author year" style of
+%% citations and references.
+%% Uncommenting
+%% the next command will enable that style.
+%%\citestyle{acmauthoryear}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+%\title{The Name of the Title is Hope}
+\title{Power Modeling and Estimation of Gemmini}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Vighnesh Iyer}
+\email{vighnesh.iyer@berkeley.edu}
+\affiliation{%
+  \institution{University of California, Berkeley}
+}
+
+\author{Billy Chau}
+\email{chunheichau@berkeley.edu@berkeley.edu}
+\affiliation{%
+  \institution{University of California, Berkeley}
+}
+
+%%
+%% By default, the full list of authors will be used in the page
+%% headers. Often, this list is too long, and will overlap
+%% other information printed in the page headers. This command allows
+%% the author to define a more concise list
+%% of authors' names for this purpose.
+%\renewcommand{\shortauthors}{Trovato and Tobin, et al.}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+  Stuff here
+\end{abstract}
+
+\maketitle
+
+\section{Background and Motivation}
+The architecture and VLSI literature has produced a litany of dedicated ML accelerators over the last 3 years.
+These accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or other techniques to achieve a perf/watt advantage over a baseline.
+
+However, architecture papers typically measure the energy consumption of the proposed accelerator against a baseline using a (Python/C++) model of their accelerator, and thus produce unreliable energy numbers.
+Some papers use HLS to generate RTL implementations of different architectures.
+The RTL is synthesized and RTL simulation is used to produce activity traces for energy estimation.
+Unfortunately, RTL simulation is slow, and thus only small DNNs can be evaluated.
+
+On the other hand, chip/VLSI papers measure the energy consumption of a taped out chip, but do not have a baseline accelerator implementation taped-out to compare against.
+Furthermore, once a chip is taped out, the power consumption cannot be measured for individual parts of the accelerator (at module-granularity) and cycle-by-cycle energy numbers cannot be extracted.
+
+\section{Prior Work}
+STROBER\cite{strober} is a fast and cycle-accurate sample-based energy estimation framework that automatically transforms RTL into a deterministic FPGA simulator.
+The work instruments the RTL design with a shadow scan chain that enables $\mu$Arch state extraction by the host.
+To estimate energy, STROBER exploits the central limit theorem by taking state snapshots of the RTL at intervals using reservoir sampling and replaying those snapshots on a gate-level power simulator.
+%It has achieved less than
+%5 percents error with 99.9 percents confidence against commercial CAD tools with more
+%than two orders of magnitude speedup over existing microarchitectural simulators and
+%four orders of magnitude speedup over commercial Verilog simulators.
+
+%\textbf{Highlights}
+
+%State Snapshotting using Scan Chain - As detailed information of simulation is required
+%for an accurate power model, a basic scan chain is embedded into the design to capture
+%a replayable RTL snapshot with both register and SRAM values. Using the hardware
+%construction language Chisel, all custom transforms and FAME1 transform can be easily
+%mapped and wrapped around the RTL design.
+
+%Sample-based Energy Simulation - Based on the central limit theorem of statistics,
+%a representative estimator of the power model can be generated given random sampling
+%and enough snapshot samples. However, knowing the length of the program's execution
+%is impossible, so the reservoir sampling technique is used to address this problem.
+
+%Fine-grained level Simulation and Checking - Independent replayable snapshots are replayed in parallel in
+%commercial gate-level simulators such as VCS for accurate power analysis. To ensure the correctness of the execution, the output values
+%of the design are compared with the output traces.
+
+Simmani\cite{simmani} is a framework that trains a power model that takes toggle activity for a small subset of signals in the RTL design (found via clustering on signal toggle densities from training VCDs), instruments the RTL design with activity counters for these signals, and enables runtime power estimation.
+This work demonstrated good power accuracy on running SqueezeNet on Rocket with a Hwacha vector accelerator.
+%Simmani\autocite{simmani} is an FPGA-accelerated framework which automatically selects signals most correlated with power dissipation and trains power models in terms of the selected signals for any RTL design. It has achieved accurate power models with acceptable errors on real world machine learning application such as SqueezeNet running with Rocket Core and Hwacha Vector Accelerator.
+
+%\textbf{Highlights}
+
+%Activity Counter Insertion and FPGA accelerated simulation - Utilizing the Strober framework, any RTL designs are automatically transformed for FPGA-accelerated RTL simulation. The framework is also used to obtain runtime power traces from FPGAs by inserting activity counters.
+
+%Toggle Density Matrix with Principal Components Projection - In order to train an accurate power model, toggle pattern matrix is used to represent signals and their toggle frequencies. The intuition behind is that signals showing similar toggle patterns have similar effect on dynamic power dissipation and can be factored to share the same coefficient in the power model, thus minimizing modeling error. However, it suffers from the curse of dimensionality like other machine learning algorithms; therefore, SVD-based dimensionality reduction algorithm is used to extract the top k dimensions.
+
+%Automatic Signal Selection - Given N, the number of signals selected from Bayesian Information Criterion, k-means++ algorithm is run to cluster the signals into groups i.e. signals with similar toggle pattern are grouped together. Then, the signals that are the closest to the center of each cluster are selected, which will be the regression variables in power model training.
+
+%Power Model Regression - Using Elastic Net for variable regularization and selection with k-fold cross-validated hyperparameters, a regression model is trained using the toggle density matrix and the groud truth power traces obtained from commercial CAD tools calculated from RTL VCD dumps.
+
+DESSERT\cite{dessert} is a framework for FPGA-accelerated RTL debugging that enables synthesized assertions and full $\mu$Arch state dumping.
+This work demonstrates the flexibility of a instrumented scan chain to dump arbitrary state that we could use to ``instrument" the RTL design in software after a bitstream has already been created.
+%DESSERT\autocite{dessert} is an FPGA-accelerated framework for effective simulation-based RTL verification and debugging. It has achieved almost no performance overhead with hardware-based assertion checking and insignificant performance overhead for software-based exhaustive checking in comparison to commercial CAD tools.
+
+%\textbf{Highlights}
+
+%Error Capturing using Scan Chain - Following the technique in the Strober framework, scan chain based snapshotting is used for error capturing in DESSERT. There are two constructs supporting assertion and logs in FIRRTL: stop and printf, and they are mapped automatically from the source code by DESSERT. In order to detect and replay errors efficiently, two identical and deterministic simulators are run in parallel. The leading master instance is to detect the target RTL bugs while the lagging instance is to checkpoint the target RTL state.
+
+%Software-based Golden Model Checking - When the logs are generated from FPGA, they are sent to the
+%buffers in the software simulation driver through DMA. They are then compared with a software-based golden model such as Spike for exhaustive error checking.
+
+\section{Proposal}
+We propose a framework that enables:
+\begin{itemize}
+  \item RTL-fidelity simulation of ML accelerators over full DNN inference passes
+
+    We plan to re-use the Firesim FIRRTL passes that automatically transform arbitrary RTL to a deterministic, cycle-accurate model that executes on an FPGA.
+
+  \item Gate-level fidelity energy modeling (with module-level granularity)
+
+    We plan to modify and add passes to Golden Gate that add a stitched scan chain and SRAM hijack ports that allows the host to inject and pull all $\mu$Arch state to and from the DUT.
+    This technique is distinct from DESSERT and STROBER since those works use a shadow scan chain that cannot inject state into the DUT, and may be more resource intensive.
+
+    This allows us to advance simulation time, pause at random intervals, and dump the DUT state to the host, similar to STROBER.
+    The randomly sampled RTL-level activity traces can be formally mapped into gate-level traces and fed into Voltus with a gate-level synthesized netlist for cycle-by-cycle energy estimates.
+
+  \item Performance instrumentation and bottleneck analysis (PE utilization, memory traffic analysis)
+
+    We plan to use the auto-instrumentation (AutoCounter) feature in FirePerf\cite{fireperf} to dump design-specific performance counters to evaluate bottlenecks in DNN inference.
+    We also plan to instrument the off-chip memory interface to record the DRAM address and transfer size patterns.
+
+  \item Energy estimation of DRAM accesses
+
+    The memory access trace can be replayed in DRAMSim2\cite{dramsim2} to extract average power numbers across time.
+    DRAM access energy is sometimes neglected in RTL-level power analyses and but was done in the STROBER flow.
+
+  \item Exploration of the impact different dataflows and tiling patterns on energy and performance
+
+    Finally, once the framework described has been implemented, it can be used to guide software optimizations.
+\end{itemize}
+
+We plan to use this framework to evaluate Gemmini\cite{gemmini} and BOOM, and if time permits, NVDLA on Firesim\cite{nvdlafiresim}.
+
+\section{Project Infrastructure}
+For the initial phase of the project, we don't require any special infrastructure apart from our laptops and the BWRC servers for Genus/Jasper/Voltus (we hope VPN works).
+Once software simulation is successful, we will use some AWS F1 instances.
+
+\section{Project Timeline}
+
+\begin{enumerate}
+  \item \textbf{Checkpoint 1 (4/10)}: RTL simulation of a simple circuit (Risc/GCD) after default Firesim transformation, ASAP7 Genus synthesis of the circuit and SRAM macros, formal mapping of RTL VCD to gate-level VCD, scan-chain stitching and SRAM hijack FIRRTL pass working in RTL simulation
+  \item \textbf{Checkpoint 2 (4/24)}: Sample circuit simulating on F1 FPGA, $\mu$Arch state dumping, initial energy estimation evaluation
+  \item \textbf{Final Report (5/8)}: Rocket with Gemmini simulating on F1 FPGA, DRAM interface and Gemmini-specific performance instrumentation, Gemmini energy estimation for pre-written ResNet50 and Mobilenet implementations, DRAMSim2 energy estimation
+\end{enumerate}
+
+The timeline is aggressive and there may be points where we find ourselves stuck.
+It is likely that the custom FIRRTL passes introduce difficult to find bugs and may delay this timeline.
+It is not clear how to perform formal mapping of RTL VCDs to gate VCDs, but there's probably a Cadence RAK for it.
+
+
+\section{Conclusion and Future Work}
+
+%%
+%% The acknowledgments section is defined using the "acks" environment
+%% (and NOT an unnumbered section). This ensures the proper
+%% identification of the section in the article metadata, and the
+%% consistent spelling of the heading.
+%\begin{acks}
+%\end{acks}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}
+\endinput
+%%
+%% End of file `sample-sigconf.tex'.
