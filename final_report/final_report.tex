@@ -57,14 +57,14 @@
 %% values in them; it is your responsibility as an author to replace
 %% the commands and values with those provided to you when you
 %% complete the rights form.
-\setcopyright{acmcopyright}
-\copyrightyear{2019}
-\acmYear{2019}
-\acmConference[MEMOCODE '19]{17th ACM-IEEE International Conference on Formal Methods and Models for System Design}{October 9--11, 2019}{La Jolla, CA, USA}
-\acmBooktitle{17th ACM-IEEE International Conference on Formal Methods and Models for System Design (MEMOCODE '19), October 9--11, 2019, La Jolla, CA, USA}
-\acmPrice{15.00}
-\acmDOI{10.1145/3359986.3361202}
-\acmISBN{978-1-4503-6997-8/19/10}
+%\setcopyright{acmcopyright}
+%\copyrightyear{2019}
+%\acmYear{2019}
+%\acmConference[MEMOCODE '19]{17th ACM-IEEE International Conference on Formal Methods and Models for System Design}{October 9--11, 2019}{La Jolla, CA, USA}
+%\acmBooktitle{17th ACM-IEEE International Conference on Formal Methods and Models for System Design (MEMOCODE '19), October 9--11, 2019, La Jolla, CA, USA}
+%\acmPrice{15.00}
+%\acmDOI{10.1145/3359986.3361202}
+%\acmISBN{978-1-4503-6997-8/19/10}
 
 %%
 %% Submission ID.
@@ -93,7 +93,7 @@
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
 %\title{The Name of the Title is Hope}
-\title{Power Modeling and Estimation of Gemmini}
+\title{Power Modeling and Estimation for Gemmini}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -125,14 +125,22 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-  Stuff here
+  This project seeks to develop an architectural power model for Gemmini based on a macroblock characterization flow.
+  The power model will be validated against synthesized and pnr'ed implementations of Gemmini running small microbenchmarks
+  The model can be used to evaluate the energy breakdown of more complex software and benchmark Gemmini against other ML accelerators.
 \end{abstract}
 
 \maketitle
 
 \section{Background and Motivation}
+There are several techniques used in the literature to evaluate power metrics for a digital architecture.
+
+\begin{itemize}
+  \item Architectural power modeling: 
+\end{itemize}
+
 The architecture and VLSI literature has produced a litany of dedicated ML accelerators over the last 3 years.
-These accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or other techniques to achieve a perf/watt advantage over a baseline.
+These accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or other techniques to achieve a perf/watt advantage over a baseline design.
 
 However, architecture papers typically measure the energy consumption of the proposed accelerator against a baseline using a (Python/C++) model of their accelerator, and thus produce unreliable energy numbers.
 Some papers use HLS to generate RTL implementations of different architectures.
@@ -243,6 +251,11 @@ It is not clear how to perform formal mapping of RTL VCDs to gate VCDs, but ther
 
 
 \section{Conclusion and Future Work}
+
+\appendix
+\section{Original Proposal}
+
+\subsection{Modifications / Rationale}
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
