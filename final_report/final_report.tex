@@ -126,18 +126,34 @@
 %% article.
 \begin{abstract}
   This project seeks to develop an architectural power model for Gemmini based on a macroblock characterization flow.
-  The power model will be validated against synthesized and pnr'ed implementations of Gemmini running small microbenchmarks
-  The model can be used to evaluate the energy breakdown of more complex software and benchmark Gemmini against other ML accelerators.
+  The power model will be validated against synthesized implementations of Gemmini running microbenchmarks.
+  The model will be used to evaluate the energy breakdown of more complex software and benchmark Gemmini against other ML accelerators.
 \end{abstract}
 
 \maketitle
 
-\section{Background and Motivation}
+\section{Background and Prior Work}
 There are several techniques used in the literature to evaluate power metrics for a digital architecture.
 
-\begin{itemize}
-  \item Architectural power modeling: 
-\end{itemize}
+\textbf{Architecture-level power modeling:} This technique typically involves embedding a power model into a functional model of a digital design, or by simulating an abstract architecture description against an abstract software model/activity counts.
+
+Examples for the former technique include the power models used for evaluating the Eyeriss v2\cite{eyerissv2} and SCNN\cite{scnn} architectures which were implemented by counting SRAM reads/writes, MACs, NoC metrics, and DRAM accesses within the functional model, and assigning an energy/op number to each type of op.
+Some refinements to the power model were made by accounting for the impact of sparsity on MAC power (clock gating), the power usage of crossbars, FIFOs, and other auxiliary control circuits, and using a cycle-accurate performance model to capture non-idealities such as DRAM and NoC latency and multi-cycle arithmetic.
+
+An example of the latter technique is Accelergy\cite{accelergy}, which is a framework for estimating power from an architectural description of a tiled PE accelerator, a description of the digital components for that architecture (SRAMs, registers, MAC/multiply/adder blocks, FIFOs, crossbars, NoC routers, etc.), and plugins for defining the power models of each architectural component depending on what actions are performed on them.
+Accelergy is fed by a performance model which produces activity counts accounting for memory, compute, and communication latencies.
+Another example of an architectural power model using an abstract architecture description is the gem5 power simulator\cite{gem5power}.
+
+Architecture-level modeling is generally fast, but can suffer from low accuracy if $\mu$Arch details aren't properly considered or if the per-component power models aren't properly characterized. However, for ML accelerators, due to the regularity of computation and memory movement, architecture power models can be quite accurate. In the context of Gemmini, such a model may have accuracy loss due to non-consideration of CPU power, and performance variation from SoC integration (the effect of the shared L2 cache with the CPU, the impact of coherence from L1 and fencing, threading, and interrupts).
+
+\textbf{Chip measurement:} 
+
+    \textbf{RTL Macromodeling:}
+
+    \textbf{Post-Synthesis Vectored Power Simulation:}
+
+    \textbf{Post-PnR Vectored Power Simulation:}
+\section{Approach}
 
 The architecture and VLSI literature has produced a litany of dedicated ML accelerators over the last 3 years.
 These accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or other techniques to achieve a perf/watt advantage over a baseline design.
