@@ -46,6 +46,8 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 
+\graphicspath{{./figs/}}
+
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -57,14 +59,7 @@
 %% values in them; it is your responsibility as an author to replace
 %% the commands and values with those provided to you when you
 %% complete the rights form.
-%\setcopyright{acmcopyright}
-%\copyrightyear{2019}
-%\acmYear{2019}
-%\acmConference[MEMOCODE '19]{17th ACM-IEEE International Conference on Formal Methods and Models for System Design}{October 9--11, 2019}{La Jolla, CA, USA}
-%\acmBooktitle{17th ACM-IEEE International Conference on Formal Methods and Models for System Design (MEMOCODE '19), October 9--11, 2019, La Jolla, CA, USA}
-%\acmPrice{15.00}
-%\acmDOI{10.1145/3359986.3361202}
-%\acmISBN{978-1-4503-6997-8/19/10}
+\acmConference[290 Project]{}{}{}
 
 %%
 %% Submission ID.
@@ -169,11 +164,39 @@ A chip also has poor visibility and getting module-level power numbers is not po
 
 \section{Approach and Results}
 
-\subsection{Overall Summary}
-We propose a flow that combines the techniques from Sections \ref{arch_modeling} and \ref{syn_modeling}.
+\subsection{Proposed Flow}
+We propose a flow that combines the techniques from Sections \ref{arch_modeling} and \ref{syn_modeling} in Figure \ref{fig:overall_flow}.
 We set out to perform macroblock power characterization on the most power hungry units of Gemmini (MAC, registers, and SRAM), apply those numbers to an embedded power model in Gemmini's functional simulator, validate the power estimates from the arch power simulator against post-synthesis power estimation, and finally attempt to model Gemmini in Accelergy as an additional point of validation.
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\linewidth]{overall_flow.pdf}
+  \end{center}
+  \caption{Description of the proposed flow consisting of macroblock modeling, activity instrumentation of a functional model, and validation with Joules}
+\end{figure}
+
 \subsection{Macroblock Power Modeling}
+
+\subsubsection{MAC and Registers}
+We modeled an integer MAC within a PE of Gemmini using its \texttt{Arithmetic} typeclass and accounting for the differences between the output and weight stationary configurations:
+
+\begin{minted}[breaklines,fontsize=\small]{scala}
+class MACConfig[T <: Data:Arithmetic](val aType: T, val bType: T, val cType: T)
+// In OS mode: a and b are 8 bits and c is 32 bits of the internal accumulator
+// In WS mode: a and b are also 8 bits, but c is 19 bits of the PE from above
+case class OSMACConfig() extends MACConfig(SInt(8.W), SInt(8.W), SInt(32.W))
+case class WSMACConfig() extends MACConfig(SInt(8.W), SInt(8.W), SInt(19.W))
+\end{minted}
+
+The \texttt{MAC} module consisted of input registers for the \texttt{a}, \texttt{b}, and \texttt{c} operands, the actual MAC ($c_{out} = a*b + c$), and an output register for the result $c_{out}$.
+The inputs and outputs were registers to allow us to constrain the timing of the MAC and to create an environment similar to Gemmini's PE.
+
+The \texttt{MAC} module was driven by a testbench that could control the input density of \texttt{a} and \texttt{b} to model input activation and weight sparsity for the weight stationary dataflow.
+The testbench models the weight stationary dataflow by keeping \texttt{b} stationary for 16 cycles (the default Gemmini \texttt{DIM}) at a time and allowing \texttt{a} to change every cycle.
+The testbench was written in Verilog instead of from within Scala (using \texttt{chisel-iotesters}/\texttt{chiseltest}) to enable easy integration with gate-level simulation.
+Future work involves porting the testbench to Scala after gate-level simulation support is available to enable easy propagation of generator parameters to the testbench.
+
+
 
 \subsection{Spike Power Model}
 

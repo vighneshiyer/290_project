@@ -10,9 +10,18 @@ PACKAGE=acmart
 
 
 PDF = $(PACKAGE).pdf acmguide.pdf
+FIG_SVGS := $(shell find figs -type f -name "*.svg")
+FIG_PDFS := $(subst .svg,.pdf,$(FIG_SVGS))
+
+report: final_report.pdf
 
 all:  ${PDF} ALLSAMPLES
 
+figs/%.pdf: figs/%.svg
+	rsvg-convert -f pdf -o $@ $^
+
+final_report.pdf: $(PACKAGE).cls final_report.tex $(FIG_PDFS)
+	texfot pdflatex -shell-escape final_report.tex
 
 %.pdf:  %.dtx   $(PACKAGE).cls
 	pdflatex $<
