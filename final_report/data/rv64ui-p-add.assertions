@@ -1,0 +1,49 @@
+rv64ui-p-add on Joules DB, some nets are asserted!, but no clock gates!
+----------------------------- Annotation Report ----------------------------
+Object Type           Asserted  UnAsserted  Unconnected    Total  Asserted%
+                                             + Constant                    
+----------------------------------------------------------------------------
+Primary Ports                                                              
+  Inputs                   130           0           36      166    100.00%
+  Outputs                  273           0            0      273    100.00%
+  I/O                        0           0            0        0        N/A
+Sequential Outputs                                                         
+  Memory                     0           0            0        0        N/A
+  Flop                   62783       26556            0    89339     70.27%
+  Latch                      0           0            0        0        N/A
+  Arch ICGC                  0           0            0        0        N/A
+  Inferred ICGC              0           0            0        0        N/A
+  Total ICGC                 0           0            0        0        N/A
+Drivers                                                                    
+  Driver nets            98053     1090661        22079  1210793      8.24%
+  RTL Driver nets        97908      115898        20564   234370     45.79%
+DFT                                                                        
+  Input Ports                0           0            0        0        N/A
+  Flop Outputs               0           0            0        0        N/A
+  Memory Outputs             0           0            0        0        N/A
+----------------------------------------------------------------------------
+
+rv64ui-p-add on Genus DB, many nets are not asserted!, trying propagate_activity, doesn't help
+---------------------------- Annotation Report ----------------------------
+Object Type           Asserted  UnAsserted  Unconnected   Total  Asserted%
+                                             + Constant                   
+---------------------------------------------------------------------------
+Primary Ports                                                             
+  Inputs                   130           0           36     166    100.00%
+  Outputs                  273           0            0     273    100.00%
+  I/O                        0           0            0       0        N/A
+Sequential Outputs                                                        
+  Memory                     0           0            0       0        N/A
+  Flop                   62745       26542            0   89287     70.27%
+  Latch                      0           0            0       0        N/A
+  Arch ICGC                  0           0            0       0        N/A
+  Inferred ICGC              0        4307            0    4307      0.00%
+  Total ICGC                 0        4307            0    4307      0.00%
+Drivers                                                                   
+  Driver nets           122915      649477        36073  808465     15.91%
+  RTL Driver nets       122780      400766        23748  547294     23.45%
+DFT                                                                       
+  Input Ports                0           0            0       0        N/A
+  Flop Outputs               0           0            0       0        N/A
+  Memory Outputs             0           0            0       0        N/A
+---------------------------------------------------------------------------
