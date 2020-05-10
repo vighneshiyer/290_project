@@ -203,6 +203,58 @@ Future work involves porting the testbench to Scala after gate-level simulation 
 \subsection{Gemmini Post-Syn Power Evaluation}
 
 \subsection{Modeling Gemmini in Acceleregy}
+\subsubsection{Gemmini Accelergy Model}
+We modeled Gemmini's architecture as a combination of two scratchpads (weight and input), one accumulator scratchpad, and 16x16 PE elements; each with 8 bits integer MAC unit and register.
+
+\begin{minted}[breaklines,fontsize=\small,frame=single]{yaml} 
+architecture:
+  version: 0.3
+  subtree:
+    - name: eyeriss_like
+      attributes:
+        technology: 65nm
+      local:
+        - name: weights_sp
+          class: SRAM
+          attributes:
+            width: 128
+            depth: 4096
+            n_banks: 2
+            n_rdwr_ports: 1
+        - name: ifmap_sp
+          class: SRAM
+          attributes:
+            width: 128
+            depth: 4096
+            n_banks: 2
+            n_rdwr_ports: 1
+        - name: accum_sp
+          class: SRAM
+          attributes:
+            width: 512
+            n_banks: 1
+            bank_depth: 1024
+            depth: bank_depth * n_banks
+            n_rdwr_ports: 1
+      subtree:
+      - name: PE[0..255]
+        local:
+          - name: weight_or_output
+            class: reg
+            attributes:
+              datawidth: 8
+          - name: mac
+            class: intmac
+            attributes:
+              datawidth: 8
+          - name: pipeline_reg
+            class: reg
+            attributes:
+              datawidth: 8
+\end{minted}
+
+\subsubsection{Future Work}
+The current model lacks of fidelity as it does not account for the behavior of the L2 cache, double buffering, wire, etc., so it will be a good idea to refine the existing model in the future.
 
 \section{Conclusion}
 
