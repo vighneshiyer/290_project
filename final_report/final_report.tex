@@ -176,6 +176,13 @@ We set out to perform macroblock power characterization on the most power hungry
 \end{figure}
 
 \subsection{Macroblock Power Modeling}
+We propose macroblock modeling of a few power-critical blocks of Gemmini such as the MAC and SRAM units that make up the accumulator and scratchpad.
+We can extract the register write energy from the MAC macromodeling as described below.
+
+The macroblock modeling flow starts with Chisel generators that mimic the power-critical modules of Gemmini and are parameterized similar to Gemmini.
+These blocks are pushed through the standard VLSI flow to produce post-pnr views.
+A post-pnr timing annotated gate-level simulation is run with a testbench that can vary the module's input stimulus.
+The VCD produced by VCS is fed to Voltus along with the extracted post-pnr design to extract average power.
 
 \subsubsection{MAC and Registers}
 We modeled an integer MAC within a PE of Gemmini using its \texttt{Arithmetic} typeclass and accounting for the differences between the output and weight stationary configurations:
@@ -196,11 +203,107 @@ The testbench models the weight stationary dataflow by keeping \texttt{b} statio
 The testbench was written in Verilog instead of from within Scala (using \texttt{chisel-iotesters}/\texttt{chiseltest}) to enable easy integration with gate-level simulation.
 Future work involves porting the testbench to Scala after gate-level simulation support is available to enable easy propagation of generator parameters to the testbench.
 
+We produce results from Voltus for a 100\% dense input sequence and a weight-stationary MAC configuration shown in Figure \ref{fig:mac_energy}.
+
+\begin{figure}
+\begin{tabular}{l l l l l}
+  \textbf{Group} & \textbf{Internal} & \textbf{Switching} & \textbf{Leakage} & \textbf{Total} \\
+  \toprule
+  Sequential & 0.08327 & 0.01127 & 0.01612 & 0.1107 \\ \midrule
+  Combinational & 0.06096 & 0.04821 & 0.01616 & 0.1253 \\
+  \bottomrule
+\end{tabular}
+\caption{Power numbers for a registered 8/8/19 bit SInt MAC, all numbers in mW}
+\label{fig:mac_energy}
+\end{figure}
+
+The testbench runs for 1600 cycles and the MAC was timed at 1 GHz.
+The total energy per MAC is then around \textbf{125 fJ} and the energy per register write per bit is \textbf{2 fJ}.
+The leakage energy per MAC per cycle is \textbf{16 fJ}.
+During the entire waveform the total power of the MAC + registers ranged between 0.14 mW and 0.34 mW in 2ns intervals.
+
+We also examine the impact of changing the input densities of \texttt{a} and \texttt{b} in Figure \ref{fig:density_mac}.
+Different input densities had a minimal impact on sequential power, but reduced dynamic combinational power linearly with the density reduction.
+Unsurprisingly, reducing density in the weight matrix had a larger impact than density in the input activations due to the weight stationary dataflow that's being assumed.
+
+\begin{figure}
+\begin{tabular}{l l l}
+  \textbf{Input Density} & \textbf{fJ/MAC (a)} & \textbf{fJ/MAC (b)} \\
+  \toprule
+  1 & 125 & 125 \\ \midrule
+  0.875 & 121 & 97 \\ \midrule
+  0.5 & 107 & 81 \\ \midrule
+  0.125 & 84 & 67 \\ \midrule
+  0 & 70 & 60 \\
+  \bottomrule
+\end{tabular}
+\caption{Impact of different densities of \texttt{a} and \texttt{b} on MAC energy in a WS enviroment}
+\label{fig:density_mac}
+\end{figure}
+
+
+
+
+% keep raw data here, but commented out
+\iffalse
+changing density of a (affects every cycle)
+
+7/8 density = 121 fJ
+Sequential                     0.08286      0.01106       0.01613      0.1101       47.59
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.05868      0.04644        0.0161      0.1212       52.41
+
+4/8 density = 107 fJ
+Sequential                     0.08256       0.0101       0.01611      0.1088       50.31
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.05111      0.04038       0.01594      0.1074       49.69
+
+1/8 density = 84 fJ
+Sequential                     0.08236     0.008656       0.01611      0.1071       55.91
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.03821      0.03021       0.01606     0.08449       44.09
+
+0/8 density = 70 fJ
+Sequential                     0.08196     0.007843       0.01609      0.1059       60.14
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.03016      0.02391       0.01611     0.07018       39.86
+
+changing density of b (affects 16 cycle blocks)
+7/8 density = 97 fJ
+Sequential                     0.08199        0.011       0.01612      0.1091        52.9
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.04556      0.03558       0.01599     0.09713        47.1
+
+4/8 density = 81 fJ
+Sequential                     0.08156      0.01115       0.01612      0.1088       57.24
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.03707      0.02838       0.01584     0.08128       42.76
+
+1/8 density = 67 fJ
+Sequential                     0.08096      0.01101       0.01611      0.1081       61.67
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.02963      0.02203       0.01552     0.06719       38.33
+
+0/8 density = 60 fJ
+Sequential                     0.08049       0.0109        0.0161      0.1075       64.08
+Macro                                0            0             0           0           0
+IO                                   0            0             0           0           0
+Combinational                  0.02586      0.01894       0.01545     0.06024       35.92
+\fi
+
+\subsubsection{SRAM Macromodeling}
 
 
 \subsection{Spike Power Model}
 
-\subsection{Gemmini Post-Syn Power Evaluation}
+\subsection{Gemmini Post-Syn Joules Evaluation}
 
 \subsection{Modeling Gemmini in Acceleregy}
 
