@@ -299,6 +299,7 @@ This represents the baseline power for Gemmini while it is idle; it appears quit
 To clarify, this simulation doesn't accurately estimate SRAM power and only considers the capacitance at the SRAM pins to contribute to SRAM power.
 
 It appears that Gemmini does not have good support for inserting clock gate cells for the registers within each \texttt{Tile}.
+The \texttt{a} and \texttt{b} input shift registers do not have an enable signal and there is no zero propagation signal that would prevent register updates to \texttt{c} in output stationary mode, and updates to the input registers which are unnecessary since the multiplier output is zero.
 
 \subsubsection{Gemmini Test Evaluation}
 We evaluated two other tests \texttt{mvin\_mvout} and \texttt{large\_matmul} (64x64 matmul) using Joules.
@@ -408,8 +409,14 @@ The current Accelergy Gemmini model lacks of fidelity as it does not account for
 \appendix
 \section{Links}
 % chipyard branch
+We have a \texttt{power-modeling} branch on the main Chipyard repo (\texttt{github.com:ucb-bar/chipyard}) that contains the scripts to perform macroblock modeling of the MAC and evaluation of Rocket + Gemmini on Joules.
+The Joules implementation is just copied/pasted TCL scripts for now, but we plan to make a proper Hammer plugin for it.
+
 % esp-isa-sim fork
+The spike power model is on a branch (\texttt{b\_progress}) of \texttt{esp-isa-sim} on a fork (\texttt{github.com:vighneshiyer/esp-isa-sim}).
+
 % this repo
+
 % models used for Accelergy
 
 \section{Original Proposal}
