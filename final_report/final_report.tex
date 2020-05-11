@@ -317,6 +317,7 @@ This could indicate that the computation takes sufficiently long and has signifi
     \includegraphics[width=\linewidth]{baseline_model.pdf}
   \end{center}
   \caption{Energy Baseline Model from Eyeriss\cite{eyerissv1}}
+  \label{fig:baseline_model}
 \end{figure}
 
 \begin{figure}
@@ -334,8 +335,23 @@ This could indicate that the computation takes sufficiently long and has signifi
 \end{figure}
 
 \subsection{Spike Power Model}
-\subsubsection{Result}
-We instrumented the DRAM, scratchpad, accumulator, MAC, and pipeline reg for their total access number throughout the workloads. We then run the workloads on RTL sim to collect the cycle counts and calculate the corresponding power described in Figure \ref{fig:spike_result} using the baseline model in Figure \ref{fig:baseline_model}.
+\subsubsection{Spike Instrumentation and Result}
+We instrumented the DRAM, scratchpad, accumulator, MAC, and pipeline reg for their total access number throughout the workloads. We then run the workloads on RTL sim to collect the cycle counts and calculate the corresponding power described in Figure \ref{fig:spike_result} using the baseline model in Figure \ref{fig:baseline_model}. The basic idea behind our model is to increment the count at specific point of execution. For example, the dram access bytes count can be estimated as below:
+\begin{minted}[breaklines,fontsize=\small,frame=single]{c}
+template <class T>
+T gemmini_t::read_from_dram(reg_t addr) {
+  ...
+  dram_read += sizeof(T);
+  ...
+}
+
+void gemmini_t::mvin(reg_t dram_addr, reg_t sp_addr) {
+    ...
+    auto value = read_from_dram<elem_t>(dram_byte_addr);
+    sp_write += sizeof(elem_t);
+    ...
+}
+\end{minted}
 
 \subsubsection{Spike Power Model vs Joules}
 The power estimated from the spike power model only consists of the active dynamic power within Gemmini (\texttt{/Top/Tile/v}).
@@ -397,6 +413,30 @@ architecture:
               datawidth: 8
 \end{minted}
 
+\subsubsection{Accelergy High Level Framework}
+Accelergy allows users to describe their design with their own set of components defined within the framework, and its fine-grained action classification allows users to achieve accurate power breakdowns before layout. A high level overview of the framework is described in Figure \ref{fig:accelergy_high_level}. User first needs to define the architecture of the accelerator using the primitive or user-defined components. Then user can pick an estimation plugin such as Aladdin and Cacti with technology defined energy data to generate an energy reference table of the user-defined architecture. Finally, an energy estimation result will be generated using user-defined action count file describing the switching activity. An example energy estimation is described below:
+
+\begin{minted}[breaklines,fontsize=\small,frame=single]{yaml}
+energy_estimation:
+  components:
+  - name: eyeriss_like.ifmap_sp
+    energy: 512
+  - name: eyeriss_like.PE[0].double_buffer
+    energy: 8192
+  - name: eyeriss_like.accum_sp
+    energy: 512
+  - name: eyeriss_like.weights_sp
+    energy: 512
+  version: 0.3
+\end{minted}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\linewidth]{high_level_framework.pdf}
+  \end{center}
+\caption{High Level Framework from Accelergy\cite{accelergy}. All user inputs are defined as YAML files.}
+\label{fig:accelergy_high_level}
+\end{figure}
 
 \section{Conclusion}
 
