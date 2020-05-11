@@ -306,14 +306,13 @@ To be clear, this simulation doesn't accurately estimate SRAM power and only con
 \end{figure}
 
 \begin{figure}
-  \begin{tabular}{ m{12em} | m{1cm}| m{1cm} | m{1cm} } 
-    \textbf{Workload} & \textbf{Cycles} & \textbf{Energy (pJ)} & \textbf{Power (mW)} \\ \toprule
-    16x16 Matmul & 1232 & 56.0 & 76.2 \\ \midrule
-    64x64 Matmul & 18579 & 42.2 & 59.0 \\ \midrule
-    Smallest Layer (mobilenet) & 125573 & 42.2 & 59.0 \\ \midrule
-    Smallest Layer (resnet) & 922534 & 922534 & 59.0 \\ \midrule
-    Biggest Layer (mobilenet) & 7250444 & 42.2 & 59.0 \\ \midrule
-    Biggest Layer (resnet) & 16.4 & 42.2 & 59.0 \\ \midrule
+  \begin{tabular}{ m{12em} | m{1cm}| m{5em} | m{1cm} } 
+    \textbf{Workload} & \textbf{Cycles} & \textbf{Total Energy (\textmu J)} & \textbf{Average Power (mW)} \\ \toprule
+    16x16 Matmul & 1232 & 20 & 17.04 \\ \midrule
+    64x64 Matmul & 18579 & 1016 & 54.6 \\ \midrule
+    Smallest Layer (mobilenet) & 125573 & 16226 & 129.22 \\ \midrule
+    Smallest Layer (resnet) & 922534 & 1114616 & 153.73 \\ \midrule
+    Biggest Layer (mobilenet) & 7250444 & 149663 & 162.23 \\ \midrule
     \bottomrule
   \end{tabular}
   \caption{All layers are Convolutional Layer. Cycles are collected from RTL.}
