@@ -129,7 +129,7 @@
 
 \section{Background and Prior Work}
 There are several techniques used in prior work to evaluate power metrics for a digital architecture.
-These techniques can be compared and contrasted across the visibility/granularity, fidelity/accuracy, speed, and startup time axes as shown in table \ref{}.
+These techniques can be compared and contrasted across the visibility/granularity, fidelity/accuracy, speed, and startup time axes as shown in Figure \ref{fig:power_technique_comparison}.
 
 \subsection{Architecture-level Power Modeling}\label{arch_modeling}
 This technique typically involves embedding a power model into a functional model of a digital design, or by simulating an abstract architecture description against an abstract software model/activity counts.
@@ -162,6 +162,13 @@ However, the signoff power estimated by this flow is as accurate as one can get 
 Taking an architecture to tapeout will get the most accurate power numbers, will be able to run software in realtime, but you will only be able to evaluate a few corners, supplies, and frequencies with only one design point.
 A chip also has poor visibility and getting module-level power numbers is not possible.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{power_technique_comparison.pdf}
+  \caption{A comparison of different techniques for power estimation}
+  \label{fig:power_technique_comparison}
+\end{figure}
+
 \section{Approach and Results}
 
 \subsection{Proposed Flow}
@@ -173,6 +180,7 @@ We set out to perform macroblock power characterization on the most power hungry
     \includegraphics[width=\linewidth]{overall_flow.pdf}
   \end{center}
   \caption{Description of the proposed flow consisting of macroblock modeling, activity instrumentation of a functional model, and validation with Joules}
+  \label{fig:overall_flow}
 \end{figure}
 
 \subsection{Macroblock Power Modeling}
@@ -318,6 +326,7 @@ This could indicate that the computation takes sufficiently long and has signifi
     \includegraphics[width=\linewidth]{baseline_model.pdf}
   \end{center}
   \caption{Energy Baseline Model from Eyeriss\cite{eyerissv1}}
+  \label{fig:baseline_model}
 \end{figure}
 
 \begin{figure}
@@ -335,8 +344,23 @@ This could indicate that the computation takes sufficiently long and has signifi
 \end{figure}
 
 \subsection{Spike Power Model}
-\subsubsection{Result}
-We instrumented the DRAM, scratchpad, accumulator, MAC, and pipeline reg for their total access number throughout the workloads. We then run the workloads on RTL sim to collect the cycle counts and calculate the corresponding power described in Figure \ref{fig:spike_result} using the baseline model in Figure \ref{fig:baseline_model}.
+\subsubsection{Spike Instrumentation and Result}
+We instrumented the DRAM, scratchpad, accumulator, MAC, and pipeline reg for their total access number throughout the workloads. We then run the workloads on RTL sim to collect the cycle counts and calculate the corresponding power described in Figure \ref{fig:spike_result} using the baseline model in Figure \ref{fig:baseline_model}. The basic idea behind our model is to increment the count at specific point of execution. For example, the dram access bytes count can be estimated as below:
+\begin{minted}[breaklines,fontsize=\small,frame=single]{c}
+template <class T>
+T gemmini_t::read_from_dram(reg_t addr) {
+  ...
+  dram_read += sizeof(T);
+  ...
+}
+
+void gemmini_t::mvin(reg_t dram_addr, reg_t sp_addr) {
+    ...
+    auto value = read_from_dram<elem_t>(dram_byte_addr);
+    sp_write += sizeof(elem_t);
+    ...
+}
+\end{minted}
 
 \subsubsection{Spike Power Model vs Joules}
 The power estimated from the spike power model only consists of the active dynamic power within Gemmini (\texttt{/Top/Tile/v}).
@@ -348,6 +372,32 @@ The power of Rocket is a tiny fraction of total system power (~3\%) and so it is
 However, the L2 needs to be taken into account in the future since its energy isn't modeled in spike and Joules estimates that it contributes to nearly 20\% of the system power.
 
 \subsection{Modeling Gemmini in Acceleregy}
+
+\subsubsection{Accelergy High Level Framework}
+Accelergy allows users to describe their design with their own set of components defined within the framework, and its fine-grained action classification allows users to achieve accurate power breakdowns before layout. A high level overview of the framework is described in Figure \ref{fig:accelergy_high_level}. User first needs to define the architecture of the accelerator using the primitive or user-defined components. Then user can pick an estimation plugin such as Aladdin and Cacti with technology defined energy data to generate an energy reference table of the user-defined architecture. Finally, an energy estimation result will be generated using user-defined action count file describing the switching activity. An example energy estimation is described below:
+
+\begin{minted}[breaklines,fontsize=\small,frame=single]{yaml}
+energy_estimation:
+  components:
+  - name: eyeriss_like.ifmap_sp
+    energy: 512
+  - name: eyeriss_like.PE[0].double_buffer
+    energy: 8192
+  - name: eyeriss_like.accum_sp
+    energy: 512
+  - name: eyeriss_like.weights_sp
+    energy: 512
+  version: 0.3
+\end{minted}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\linewidth]{high_level_framework.pdf}
+  \end{center}
+\caption{High Level Framework from Accelergy\cite{accelergy}. All user inputs are defined as YAML files.}
+\label{fig:accelergy_high_level}
+\end{figure}
+
 \subsubsection{Gemmini Accelergy Model}
 We modeled Gemmini's architecture as a combination of two scratchpads (weight and input), one accumulator scratchpad, and 16x16 PE elements; each with 8 bits integer MAC unit and register.
 
@@ -398,15 +448,29 @@ architecture:
               datawidth: 8
 \end{minted}
 
-\section{Conclusion and Future Work}
-After this experience of modeling Gemmini and its macroblocks and trying to use Voltus on the entire Rocket + Gemmini, we have some ideas and recommendationsfor what to try in the future.
-One realization is that the Rocket + Gemmini architecture produces short bursts of activity on Gemmini that spike power and has very long periods of CPU-bound sequential activity that does not activate Gemmini.
-For this reason, we believe a Strober-like technique for analyzing power in the time-domain would likely miss instances of peak power and interesting activity within Gemmini.
-
-
-Made us realize that the Strober technique would actually be inefficient and inaccurate in this case. it works well for predicting average power on a very long timescale, but when Gemmini sees bursts of usage surrounded by times of exclusive CPU activity for pooling/im2col/dwconv/etc it will not be captured properly by a sampling methodology and peak power will not be observed. rather the best tool is a runtime power monitor that is pretrained on high and low toggle vectors on smaller benchmarks (like Simmani)
-
 The current Accelergy Gemmini model lacks of fidelity as it does not account for the behavior of the L2 cache, double buffering, wire, etc., so it will be a good idea to refine the existing model in the future.
+
+\section{Conclusion and Future Work}
+After this experience of modeling Gemmini and its macroblocks and trying to use Joules/Voltus on the full Rocket + Gemmini system, we have some ideas and recommendations for what to try in the future.
+One realization is that the Rocket + Gemmini architecture produces short bursts of activity on Gemmini that spike power and is surrounded by very long periods of CPU-bound sequential activity (pooling/im2col/dwconv/memory shuffling/address calculation/fencing) that does not activate Gemmini (at least the core \texttt{Mesh}).
+For this reason, we believe a Strober-like technique for analyzing power in the time-domain would likely miss instances of peak power and interesting activity within Gemmini.
+Strober is effective for very long time horizon (millions of cycles) average power estimation over a long simulation of billions of cycles.
+
+Instead, a runtime power model that can predict power on a scale of 10s of cycles seems more appropriate (similar to Simmani\cite{simmani}).
+Such a model can be trained in advance against golden power numbers from Voltus and then used to instrument the FPGA design for realtime power prediction.
+
+%Made us realize that the Strober technique would actually be inefficient and inaccurate in this case. it works well for predicting average power on a very long timescale, but when Gemmini sees bursts of usage surrounded by times of exclusive CPU activity for pooling/im2col/dwconv/memory shuffling/fencing it will not be captured properly by a sampling methodology and peak power will not be observed. rather the best tool is a runtime power monitor that is pretrained on high and low toggle vectors on smaller benchmarks (like Simmani)
+% port changes to hammer sim on latest chipyard dev
+% expanded functionality on voltus plugin (error checking, vectorless simulation as smoke test)
+% asap7 srams with bsg_fakeram for reasonable internal power models from cacti
+% joules hammer plugin
+In the next few weeks, we plan to work on the following:
+\begin{itemize}
+  \item Port the changes we have made for Hammer RTL/GL sim integration into the latest Chipyard dev
+  \item Add error checking to the Voltus plugin to prevent some of the errors we made from happening again (relative vs absolute pathing issues, including spef files, migrate to using fsdb waveforms instead of vpd and then converting to vcd which takes a long time)
+  \item Clean up the ASAP7 SRAMs and investigate their behavioral models for possible bugs that could have lead to the hanging Hammer RTL sims. Possibly build the fake SRAMs using \href{https://github.com/bespoke-silicon-group/bsg_fakeram}{bsg\_fakeram} which supports generation of behavioral models, .libs (with timing and internal power estimates from Cacti), and .lefs from a json description of SRAM parameters
+  \item Organize our custom Joules tcl scripts into a Hammer plugin
+\end{itemize}
 
 \appendix
 \section{Links}
@@ -431,8 +495,8 @@ This required that a synthesis + pnr flow was up and running for asap7 for a lar
 \begin{figure}
   \centering
   \includegraphics[width=\linewidth]{original_proposal.pdf}
-  \label{fig:orignal_proposal}
   \caption{The original proposed flow}
+  \label{fig:original_proposal}
 \end{figure}
 
 \subsection{Modifications / Rationale}

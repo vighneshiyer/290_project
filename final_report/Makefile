@@ -22,6 +22,9 @@ figs/%.pdf: figs/%.svg
 
 final_report.pdf: $(PACKAGE).cls final_report.tex $(FIG_PDFS)
 	texfot pdflatex -shell-escape final_report.tex
+	bibtex final_report
+	texfot pdflatex -shell-escape final_report.tex
+	texfot pdflatex -shell-escape final_report.tex
 
 %.pdf:  %.dtx   $(PACKAGE).cls
 	pdflatex $<
