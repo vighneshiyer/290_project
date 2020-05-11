@@ -374,21 +374,28 @@ However, the L2 needs to be taken into account in the future since its energy is
 \subsection{Modeling Gemmini in Acceleregy}
 
 \subsubsection{Accelergy High Level Framework}
-Accelergy allows users to describe their design with their own set of components defined within the framework, and its fine-grained action classification allows users to achieve accurate power breakdowns before layout. A high level overview of the framework is described in Figure \ref{fig:accelergy_high_level}. User first needs to define the architecture of the accelerator using the primitive or user-defined components. Then user can pick an estimation plugin such as Aladdin and Cacti with technology defined energy data to generate an energy reference table of the user-defined architecture. Finally, an energy estimation result will be generated using user-defined action count file describing the switching activity. An example energy estimation is described below:
+Accelergy allows users to describe their design with their own set of components defined within the framework, and its fine-grained action classification allows users to achieve accurate power breakdowns before layout. A high level overview of the framework is described in Figure \ref{fig:accelergy_high_level}. User first needs to define the architecture of the accelerator using the primitive or user-defined components. Then user can pick an estimation plugin such as Aladdin and Cacti with technology defined energy data to generate an energy reference table of the user-defined architecture. Finally, an energy estimation result will be generated using user-defined action count file describing the switching activity.
 
 \begin{minted}[breaklines,fontsize=\small,frame=single]{yaml}
 energy_estimation:
   components:
   - name: eyeriss_like.ifmap_sp
     energy: 512
-  - name: eyeriss_like.PE[0].double_buffer
+  - name: eyeriss_like.weights_sp
+    energy: 512
+  - name: eyeriss_like.PE[0].pipeline_reg
     energy: 8192
   - name: eyeriss_like.accum_sp
     energy: 512
-  - name: eyeriss_like.weights_sp
-    energy: 512
+  - name: eyeriss_like.PE[0].mac
+    energy: 8192
+  - name: eyeriss_like.PE[0].weight_or_output
+    energy: 8192
   version: 0.3
 \end{minted}
+
+\subsubsection{Accelergy Energy Estimation}
+The energy estimation of 16x16 matmul calculated from Accelergy using Aladdin plugin is described above. We suspect the reason that the numbers are off is the incorrect use of energy tables or misunderstanding of the framework, so this is something very important to investigate in the future.
 
 \begin{figure}
   \begin{center}
