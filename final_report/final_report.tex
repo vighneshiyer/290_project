@@ -320,14 +320,13 @@ This could indicate that the computation takes sufficiently long and has signifi
 \end{figure}
 
 \begin{figure}
-  \begin{tabular}{ m{12em} | m{1cm}| m{1cm} | m{1cm} }
-    \textbf{Workload} & \textbf{Cycles} & \textbf{Energy (pJ)} & \textbf{Power (mW)} \\ \toprule
-    16x16 Matmul & 1232 & 56.0 & 76.2 \\ \midrule
-    64x64 Matmul & 18579 & 42.2 & 59.0 \\ \midrule
-    Smallest Layer (mobilenet) & 125573 & 42.2 & 59.0 \\ \midrule
-    Smallest Layer (resnet) & 922534 & 922534 & 59.0 \\ \midrule
-    Biggest Layer (mobilenet) & 7250444 & 42.2 & 59.0 \\ \midrule
-    Biggest Layer (resnet) & 16.4 & 42.2 & 59.0 \\ \midrule
+  \begin{tabular}{ m{12em} | m{1cm}| m{5em} | m{1cm} }
+    \textbf{Workload} & \textbf{Cycles} & \textbf{Total Energy (\textmu J)} & \textbf{Average Power (mW)} \\ \toprule
+    16x16 Matmul & 1232 & 20 & 17.04 \\ \midrule
+    64x64 Matmul & 18579 & 1016 & 54.6 \\ \midrule
+    Smallest Layer (mobilenet) & 125573 & 16226 & 129.22 \\ \midrule
+    Smallest Layer (resnet) & 922534 & 1114616 & 153.73 \\ \midrule
+    Biggest Layer (mobilenet) & 7250444 & 149663 & 162.23 \\ \midrule
     \bottomrule
   \end{tabular}
   \caption{All layers are convolutional. Cycles are collected from RTL simulation.}
@@ -343,7 +342,7 @@ The power estimated from the spike power model only consists of the active dynam
 However, spike takes into account the SRAM read/write power whereas Joules leaves it out due to lack of internal power models in the fake asap7 SRAM .libs.
 As a result, it is difficult to compare the power numbers across these 2 simulators.
 
-However, in general, we can estimate that the runtime power of Gemmini is on the order of \textbf{40mW when idle} and goes up to \textbf{80mW when actively used}.
+However, in general, we can estimate that the runtime power of Gemmini is on the order of \textbf{10mW when idle} and goes up to \textbf{150mW when actively used}.
 The power of Rocket is a tiny fraction of total system power (~3\%) and so it is fair to neglect it in the power model.
 However, the L2 needs to be taken into account in the future since its energy isn't modeled in spike and Joules estimates that it contributes to nearly 20\% of the system power.
 
