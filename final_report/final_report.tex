@@ -207,9 +207,9 @@ We produce results from Voltus for a 100\% dense input sequence and a weight-sta
 
 \begin{figure}
 \begin{tabular}{l l l l l}
-  \textbf{Group} & \textbf{Internal} & \textbf{Switching} & \textbf{Leakage} & \textbf{Total} \\
   \toprule
-  Sequential & 0.08327 & 0.01127 & 0.01612 & 0.1107 \\ \midrule
+  \textbf{Group} & \textbf{Internal} & \textbf{Switching} & \textbf{Leakage} & \textbf{Total} \\ \midrule
+  Sequential & 0.08327 & 0.01127 & 0.01612 & 0.1107 \\
   Combinational & 0.06096 & 0.04821 & 0.01616 & 0.1253 \\
   \bottomrule
 \end{tabular}
@@ -228,12 +228,12 @@ Unsurprisingly, reducing density in the weight matrix had a larger impact than d
 
 \begin{figure}
 \begin{tabular}{l l l}
-  \textbf{Input Density} & \textbf{fJ/MAC (a)} & \textbf{fJ/MAC (b)} \\
   \toprule
-  1 & 125 & 125 \\ \midrule
-  0.875 & 121 & 97 \\ \midrule
-  0.5 & 107 & 81 \\ \midrule
-  0.125 & 84 & 67 \\ \midrule
+  \textbf{Input Density} & \textbf{fJ/MAC (sparse a)} & \textbf{fJ/MAC (sparse b)} \\ \midrule
+  1 & 125 & 125 \\
+  0.875 & 121 & 97 \\
+  0.5 & 107 & 81 \\
+  0.125 & 84 & 67 \\
   0 & 70 & 60 \\
   \bottomrule
 \end{tabular}
@@ -252,18 +252,18 @@ In the future, we would explore modeling the accumulator and scratchpad by extra
   \begin{tabular}{lllll}
     \toprule
     \textbf{Path} & \textbf{Leakage} & \textbf{Internal} & \textbf{Total} & \textbf{\% of Total System Power} \\ \midrule
-    /Top                                                & 19.4 & 56.0 & 76.2 & 100\% \\
-    \quad /Top/tile                                     & 16.4 & 42.2 & 59.0 & 77\% \\
-    \quad\quad /Top/tile/v                              & 15.5 & 31.8 & 47.6 & 62\% \\
-    \quad\quad\quad /Top/tile/v/ex\_controller          & 0.5  & 25.4 & 26.1 & 34\% \\
-    \quad\quad\quad /Top/tile/v/spad                    & 14.9 & 3.6  & 18.6 & 24\% \\
-    \quad\quad /Top/tile/core                           & 0.01 & 2.4  & 2.5  & 3\% \\
-    \quad\quad /Top/tile/dcache                         & 0.4  & 1.4  & 1.9  & 2.5\% \\
-    \quad /Top/l2                                       & 2.9  & 9.0  & 12.2 & 16\% \\
+    /Top                                                & (19.4, 18.3, 18.6) & (56.0, 76.3, 57.0) & (76.2, 109.3, 77.3) & (100\%, 100\%, 100\%) \\
+    \quad /Top/tile                                     & (16.4, 15.5, 15.7) & (42.2, 58.6, 43.1) & (59.0, 85.3, 60.1) & (77\%, 78\%, 77\%) \\
+    \quad\quad /Top/tile/v                              & (15.5, 14.6, 14.8) & (31.8, 47.7, 32.1) & (47.6, 73.1, 47.5) & (62\%, 67\%, 61\%) \\
+    \quad\quad\quad /Top/tile/v/ex\_controller          & (0.5, 0.5, 0.5)  & (25.4, 25.3, 25.3) & (26.1, 25.9, 25.9) & (34\%, 24\%, 34\%) \\
+    \quad\quad\quad /Top/tile/v/spad                    & (14.9, 14.0, 14.3) & (3.6, 19.5, 4.1)  & (18.6, 44.3, 18.8) & (24\%, 41\%, 24\%) \\
+    \quad\quad /Top/tile/core                           & (0.01, 0.01, 0.01) & (2.4, 2.5, 2.6)  & (2.5, 2.5, 2.9)  & (3\%, 2\%, 4\%) \\
+    \quad\quad /Top/tile/dcache                         & (0.4, 0.4, 0.4)  & (1.4, 1.6, 1.7)  & (1.9, 2.2, 2.4)  & (2.5\%, 2\%, 3\%) \\
+    \quad /Top/l2                                       & (2.9, 2.8, 2.9)  & (9.0, 12.7, 9.0)  & (12.2, 18.9, 12.1) & (16\%, 17\%, 16\%) \\
     \bottomrule
   \end{tabular}
-  \caption{Baseline execution of \texttt{rv64ui-p-add} on Rocket + Gemmini. All numbers are in mW. Switching (i.e. glitch) power (typically <1\%) is lumped into the total.}
-  \label{fig:isa_test_power}
+  \caption{Joules power estimates for (\texttt{rv64ui-p-add}, \texttt{mvin\_mvout}, \texttt{large\_matmul}) on Rocket + Gemmini. All numbers are in mW. Switching (i.e. glitch) power (typically <1\%) is lumped into the total.}
+  \label{fig:test_power}
 \end{figure*}
 
 % why not voltus?
@@ -292,21 +292,35 @@ There are a few issues with this flow however:
 \end{itemize}
 
 \subsubsection{ISA Test Baseline}
-We ran a basic RISC-V ISA test in Joules (\texttt{rv64ui-p-add}), and captured the per-module power numbers to establish a baseline for idle Gemmini power summarized in Figure \ref{fig:isa_test_power}.
+We ran a basic RISC-V ISA test in Joules (\texttt{rv64ui-p-add}), and captured the per-module power numbers to establish a baseline for idle Gemmini power summarized in Figure \ref{fig:test_power}.
 About 60\% of the total system power is burned in Gemmini and the rest in the Rocket core and L2.
 Of that, about half is burned in the execute controller (the \texttt{Mesh} primarily) and about a third is burned in the scratchpad (with SRAMs and accumulation banks).
-This represents the baseline power for Gemmini while it is idle; it appears quite high 
-To be clear, this simulation doesn't accurately estimate SRAM power and only considers the capacitance at the SRAM pins to be the source of power consumption.
+This represents the baseline power for Gemmini while it is idle; it appears quite high and motivates some investigation into what nets are toggling in the GL netlist.
+To clarify, this simulation doesn't accurately estimate SRAM power and only considers the capacitance at the SRAM pins to contribute to SRAM power.
+
+It appears that Gemmini does not have good support for inserting clock gate cells for the registers within each \texttt{Tile}.
+
+\subsubsection{Gemmini Test Evaluation}
+We evaluated two other tests \texttt{mvin\_mvout} and \texttt{large\_matmul} (64x64 matmul) using Joules.
+Both tests had about the same average power as the isa test baseline when the entire simulation trace was considered.
+
+To evaluate the impact of the Gemmini-intensive code segments in isolation from the CPU matrix seeding and reference output matrix computation, we restricted Joules to analyze power from the first issue of a RoCC instruction to the last issue (and after the busy signal goes low).
+The timestamps were found by examining the waveforms in \texttt{dve}.
+The results are found in Figure \ref{fig:test_power}.
+
+\texttt{mvin\_mvout} primarily affects the scratchpad power and does not impact the execute controller (Mesh) power as expected.
+\texttt{large\_matmul} has some unusual power numbers: we would expect a significant increase in power for the Mesh, but instead it is largely unchanged from the the isa test baseline.
+This could indicate that the computation takes sufficiently long and has significant CPU overhead to compute loop bounds and addresses that the power spike of the Mesh is averaged out over a larger period during which it is idle.
 
 \begin{figure}
   \begin{center}
     \includegraphics[width=\linewidth]{baseline_model.pdf}
   \end{center}
-  \caption{Energy Baseline Model from Eyeriss.}
+  \caption{Energy Baseline Model from Eyeriss\cite{eyerissv1}}
 \end{figure}
 
 \begin{figure}
-  \begin{tabular}{ m{12em} | m{1cm}| m{1cm} | m{1cm} } 
+  \begin{tabular}{ m{12em} | m{1cm}| m{1cm} | m{1cm} }
     \textbf{Workload} & \textbf{Cycles} & \textbf{Energy (pJ)} & \textbf{Power (mW)} \\ \toprule
     16x16 Matmul & 1232 & 56.0 & 76.2 \\ \midrule
     64x64 Matmul & 18579 & 42.2 & 59.0 \\ \midrule
@@ -316,13 +330,22 @@ To be clear, this simulation doesn't accurately estimate SRAM power and only con
     Biggest Layer (resnet) & 16.4 & 42.2 & 59.0 \\ \midrule
     \bottomrule
   \end{tabular}
-  \caption{All layers are Convolutional Layer. Cycles are collected from RTL.}
+  \caption{All layers are convolutional. Cycles are collected from RTL simulation.}
   \label{fig:spike_result}
 \end{figure}
 
 \subsection{Spike Power Model}
 \subsubsection{Result}
 We instrumented the DRAM, scratchpad, accumulator, MAC, and pipeline reg for their total access number throughout the workloads. We then run the workloads on RTL sim to collect the cycle counts and calculate the corresponding power described in Figure \ref{fig:spike_result} using the baseline model in Figure \ref{fig:baseline_model}.
+
+\subsubsection{Spike Power Model vs Joules}
+The power estimated from the spike power model only consists of the active dynamic power within Gemmini (\texttt{/Top/Tile/v}).
+However, spike takes into account the SRAM read/write power whereas Joules leaves it out due to lack of internal power models in the fake asap7 SRAM .libs.
+As a result, it is difficult to compare the power numbers across these 2 simulators.
+
+However, in general, we can estimate that the runtime power of Gemmini is on the order of \textbf{40mW when idle} and goes up to \textbf{80mW when actively used}.
+The power of Rocket is a tiny fraction of total system power (~3\%) and so it is fair to neglect it in the power model.
+However, the L2 needs to be taken into account in the future since its energy isn't modeled in spike and Joules estimates that it contributes to nearly 20\% of the system power.
 
 \subsection{Modeling Gemmini in Acceleregy}
 \subsubsection{Gemmini Accelergy Model}
@@ -375,10 +398,13 @@ architecture:
               datawidth: 8
 \end{minted}
 
-\subsubsection{Future Work}
-The current model lacks of fidelity as it does not account for the behavior of the L2 cache, double buffering, wire, etc., so it will be a good idea to refine the existing model in the future.
 
 \section{Conclusion}
+
+Made us realize that the Strober technique would actually be inefficient and inaccurate in this case. it works well for predicting average power on a very long timescale, but when Gemmini sees bursts of usage surrounded by times of exclusive CPU activity for pooling/im2col/dwconv/etc it will not be captured properly by a sampling methodology and peak power will not be observed. rather the best tool is a runtime power monitor that is pretrained on high and low toggle vectors on smaller benchmarks (like Simmani)
+
+\subsection{Future Work}
+The current Accelergy Gemmini model lacks of fidelity as it does not account for the behavior of the L2 cache, double buffering, wire, etc., so it will be a good idea to refine the existing model in the future.
 
 \appendix
 \section{Links}
@@ -388,23 +414,29 @@ The current model lacks of fidelity as it does not account for the behavior of t
 % models used for Accelergy
 
 \section{Original Proposal}
-The original proposal involved developing Strober\cite{strober}-like functionality for RTL designs by adding a few passes to the Golden Gate compiler to extract snippets of RTL trace data for long running simulations on an FPGA.
+The original proposal involved developing Strober\cite{strober}-like functionality for RTL designs by adding a few passes to the Golden Gate compiler to extract snippets of RTL trace data for long running simulations on an FPGA as seen in Figure \ref{fig:original_proposal}.
 Those trace snapshots could be converted to gate-level activity and replayed on an energy simulator like Voltus to derive average power of a program during execution.
 This required that a synthesis + pnr flow was up and running for asap7 for a large design such as Gemmini with Rocket.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{original_proposal.pdf}
+  \label{fig:orignal_proposal}
+  \caption{The original proposed flow}
+\end{figure}
+
 \subsection{Modifications / Rationale}
+When we started the project, the focus was the `upper path' of the flow, which involves getting a set of Golden Gate passes, similar to the Strober DaisyChain pass, to work.
+We ended up spending a lot of time in this area and were not able to make much progress due to our limited knowledge of the FIRRTL API and the complex nature of the codebase.
+This work will have to wait until after the semester.
 
+When we realized that the top flow was not viable by the end of the semester, we switched to trying to get the `bottom path' to work.
+While working on that path, we figured that developing a simple activity-based power model embedded in spike was an easy way to validate the eventual results from the `bottom path'.
+Later, as we struggled to get even Voltus working with Gemmini + Rocket and asap7, we switched to using Cadence Joules.
 
-The architecture and VLSI literature has produced a litany of dedicated ML accelerators over the last 3 years.
-These accelerators exploited unique dataflows, weight/activation sparsity, integer arithmetic, novel circuit techniques, or other techniques to achieve a perf/watt advantage over a baseline design.
-
-However, architecture papers typically measure the energy consumption of the proposed accelerator against a baseline using a (Python/C++) model of their accelerator, and thus produce unreliable energy numbers.
-Some papers use HLS to generate RTL implementations of different architectures.
-The RTL is synthesized and RTL simulation is used to produce activity traces for energy estimation.
-Unfortunately, RTL simulation is slow, and thus only small DNNs can be evaluated.
-
-On the other hand, chip/VLSI papers measure the energy consumption of a taped out chip, but do not have a baseline accelerator implementation taped-out to compare against.
-Furthermore, once a chip is taped out, the power consumption cannot be measured for individual parts of the accelerator (at module-granularity) and cycle-by-cycle energy numbers cannot be extracted.
+We planned to also use Accelergy to get a higher-fidelity power model than counting activities in spike.
+In particular, Acceleregy could model the L2 as another memory cache layer, could model leakage power, and could model latency from DRAM to L2 to scratchpad and to the systolic mesh.
+These latency numbers could be fetched from spike by instrumenting it with latency annotations from RTL sim or from RTL simulation directly.
 
 \section{Prior Work}
 STROBER\cite{strober} is a fast and cycle-accurate sample-based energy estimation framework that automatically transforms RTL into a deterministic FPGA simulator.
@@ -416,56 +448,6 @@ This work demonstrated good power accuracy on running SqueezeNet on Rocket with 
 
 DESSERT\cite{dessert} is a framework for FPGA-accelerated RTL debugging that enables synthesized assertions and full $\mu$Arch state dumping.
 This work demonstrates the flexibility of a instrumented scan chain to dump arbitrary state that we could use to ``instrument" the RTL design in software after a bitstream has already been created.
-
-\section{Proposal}
-We propose a framework that enables:
-\begin{itemize}
-  \item RTL-fidelity simulation of ML accelerators over full DNN inference passes
-
-    We plan to re-use the Firesim FIRRTL passes that automatically transform arbitrary RTL to a deterministic, cycle-accurate model that executes on an FPGA.
-
-  \item Gate-level fidelity energy modeling (with module-level granularity)
-
-    We plan to modify and add passes to Golden Gate that add a stitched scan chain and SRAM hijack ports that allows the host to inject and pull all $\mu$Arch state to and from the DUT.
-    This technique is distinct from DESSERT and STROBER since those works use a shadow scan chain that cannot inject state into the DUT, and may be more resource intensive.
-
-    This allows us to advance simulation time, pause at random intervals, and dump the DUT state to the host, similar to STROBER.
-    The randomly sampled RTL-level activity traces can be formally mapped into gate-level traces and fed into Voltus with a gate-level synthesized netlist for cycle-by-cycle energy estimates.
-
-  \item Performance instrumentation and bottleneck analysis (PE utilization, memory traffic analysis)
-
-    We plan to use the auto-instrumentation (AutoCounter) feature in FirePerf\cite{fireperf} to dump design-specific performance counters to evaluate bottlenecks in DNN inference.
-    We also plan to instrument the off-chip memory interface to record the DRAM address and transfer size patterns.
-
-  \item Energy estimation of DRAM accesses
-
-    The memory access trace can be replayed in DRAMSim2\cite{dramsim2} to extract average power numbers across time.
-    DRAM access energy is sometimes neglected in RTL-level power analyses and but was done in the STROBER flow.
-
-  \item Exploration of the impact different dataflows and tiling patterns on energy and performance
-
-    Finally, once the framework described has been implemented, it can be used to guide software optimizations.
-\end{itemize}
-
-We plan to use this framework to evaluate Gemmini\cite{gemmini} and BOOM, and if time permits, NVDLA on Firesim\cite{nvdlafiresim}.
-
-\section{Project Infrastructure}
-For the initial phase of the project, we don't require any special infrastructure apart from our laptops and the BWRC servers for Genus/Jasper/Voltus (we hope VPN works).
-Once software simulation is successful, we will use some AWS F1 instances.
-
-\section{Project Timeline}
-
-\begin{enumerate}
-  \item \textbf{Checkpoint 1 (4/10)}: RTL simulation of a simple circuit (Risc/GCD) after default Firesim transformation, ASAP7 Genus synthesis of the circuit and SRAM macros, formal mapping of RTL VCD to gate-level VCD, scan-chain stitching and SRAM hijack FIRRTL pass working in RTL simulation
-  \item \textbf{Checkpoint 2 (4/24)}: Sample circuit simulating on F1 FPGA, $\mu$Arch state dumping, initial energy estimation evaluation
-  \item \textbf{Final Report (5/8)}: Rocket with Gemmini simulating on F1 FPGA, DRAM interface and Gemmini-specific performance instrumentation, Gemmini energy estimation for pre-written ResNet50 and Mobilenet implementations, DRAMSim2 energy estimation
-\end{enumerate}
-
-The timeline is aggressive and there may be points where we find ourselves stuck.
-It is likely that the custom FIRRTL passes introduce difficult to find bugs and may delay this timeline.
-It is not clear how to perform formal mapping of RTL VCDs to gate VCDs, but there's probably a Cadence RAK for it.
-
-
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
