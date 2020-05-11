@@ -398,12 +398,14 @@ architecture:
               datawidth: 8
 \end{minted}
 
+\section{Conclusion and Future Work}
+After this experience of modeling Gemmini and its macroblocks and trying to use Voltus on the entire Rocket + Gemmini, we have some ideas and recommendationsfor what to try in the future.
+One realization is that the Rocket + Gemmini architecture produces short bursts of activity on Gemmini that spike power and has very long periods of CPU-bound sequential activity that does not activate Gemmini.
+For this reason, we believe a Strober-like technique for analyzing power in the time-domain would likely miss instances of peak power and interesting activity within Gemmini.
 
-\section{Conclusion}
 
 Made us realize that the Strober technique would actually be inefficient and inaccurate in this case. it works well for predicting average power on a very long timescale, but when Gemmini sees bursts of usage surrounded by times of exclusive CPU activity for pooling/im2col/dwconv/etc it will not be captured properly by a sampling methodology and peak power will not be observed. rather the best tool is a runtime power monitor that is pretrained on high and low toggle vectors on smaller benchmarks (like Simmani)
 
-\subsection{Future Work}
 The current Accelergy Gemmini model lacks of fidelity as it does not account for the behavior of the L2 cache, double buffering, wire, etc., so it will be a good idea to refine the existing model in the future.
 
 \appendix
@@ -416,6 +418,8 @@ The Joules implementation is just copied/pasted TCL scripts for now, but we plan
 The spike power model is on a branch (\texttt{b\_progress}) of \texttt{esp-isa-sim} on a fork (\texttt{github.com:vighneshiyer/esp-isa-sim}).
 
 % this repo
+This document and checkpoint slides are in a repo\\
+(\texttt{github.com:vighneshiyer/290\_project}).
 
 % models used for Accelergy
 
